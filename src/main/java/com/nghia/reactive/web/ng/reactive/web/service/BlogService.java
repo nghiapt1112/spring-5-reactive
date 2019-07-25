@@ -4,6 +4,8 @@ import com.nghia.reactive.web.ng.reactive.web.domain.Blog;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface BlogService {
 
     Mono<Blog> createBlog(Blog blog);
@@ -19,4 +21,6 @@ public interface BlogService {
     Mono<Boolean> delete(String id);
 
     Flux<Blog> createBunk(Blog blog);
+
+    List<Blog> createOldBunk(Blog blog);
 }

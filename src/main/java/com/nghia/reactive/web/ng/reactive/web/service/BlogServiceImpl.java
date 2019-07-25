@@ -2,6 +2,7 @@ package com.nghia.reactive.web.ng.reactive.web.service;
 
 import com.nghia.reactive.web.ng.reactive.web.domain.Blog;
 import com.nghia.reactive.web.ng.reactive.web.domain.BlogRepository;
+import com.nghia.reactive.web.ng.reactive.web.domain.BlogRepositoryOld;
 import com.nghia.reactive.web.ng.reactive.web.exception.BlogException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,22 +19,37 @@ public class BlogServiceImpl implements BlogService {
     @Autowired
     private BlogRepository blogRepository;
 
+    @Autowired
+    private BlogRepositoryOld blogRepositoryOld;
+
     @Override
     public Mono<Blog> createBlog(Blog blog) {
         return this.blogRepository.insert(blog);
     }
 
     public Flux<Blog> createBunk(Blog blog) {
-        List<Blog> blogs = IntStream.rangeClosed(1, 1000)
+        Flux<Blog> fluxBlogs = Flux.fromStream(IntStream.rangeClosed(1, 1000)
                 .mapToObj(el -> {
                     Blog bl = new Blog();
-                    bl.setTitle(blog.getTitle().concat(String.valueOf(el)));
-                    bl.setContent(blog.getContent().concat(String.valueOf(el)));
-                    bl.setAuthor(blog.getAuthor().concat(String.valueOf(el)));
+                    bl.setTitle(blog.getTitle().concat("--").concat(String.valueOf(el)));
+                    bl.setContent(blog.getContent().concat("--").concat(String.valueOf(el)));
+                    bl.setAuthor(blog.getAuthor().concat("--").concat(String.valueOf(el)));
                     return bl;
-                })
-                .collect(Collectors.toList());
-        return this.blogRepository.saveAll(blogs);
+                }));
+        return this.blogRepository.saveAll(fluxBlogs);
+    }
+
+    @Override
+    public List<Blog> createOldBunk(Blog blog) {
+        List<Blog> list = IntStream.rangeClosed(1, 1000)
+                .mapToObj(el -> {
+                    Blog bl = new Blog();
+                    bl.setTitle(blog.getTitle().concat("--").concat(String.valueOf(el)));
+                    bl.setContent(blog.getContent().concat("--").concat(String.valueOf(el)));
+                    bl.setAuthor(blog.getAuthor().concat("--").concat(String.valueOf(el)));
+                    return bl;
+                }).collect(Collectors.toList());
+        return this.blogRepositoryOld.saveAll(list);
     }
 
     @Override

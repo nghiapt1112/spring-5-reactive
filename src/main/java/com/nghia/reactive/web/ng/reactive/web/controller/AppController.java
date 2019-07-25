@@ -2,7 +2,6 @@ package com.nghia.reactive.web.ng.reactive.web.controller;
 
 import com.nghia.reactive.web.ng.reactive.web.domain.Blog;
 import com.nghia.reactive.web.ng.reactive.web.service.BlogService;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +46,32 @@ public class AppController extends BaseController {
 
     @PostMapping("/create-bunk")
     @ResponseStatus(HttpStatus.CREATED)
-    public Flux<Blog> createBunk(@RequestBody Blog blog) {
+    public Flux<Blog> createBunk() {
         log.info("==================\n\n");
         long start = System.currentTimeMillis();
-
+        Blog blog = new Blog();
+        blog.setAuthor("Author");
+        blog.setContent("Content");
+        blog.setTitle("Title");
         Flux<Blog> blogFlux = blogService.createBunk(blog);
-        log.info("created bunk Blog with : {}" + (System.currentTimeMillis() - start));
+        log.info("created bunk Blog with : {} second.",(System.currentTimeMillis() - start));
         return blogFlux;
     }
+
+    @PostMapping("/old/create-bunk")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Blog> oldcreateBunk() {
+        log.info("==================\n\n");
+        long start = System.currentTimeMillis();
+        Blog blog = new Blog();
+        blog.setAuthor("Author");
+        blog.setContent("Content");
+        blog.setTitle("Title");
+        List<Blog> blogFlux = blogService.createOldBunk(blog);
+        log.info("created bunk Blog with : {} second.",(System.currentTimeMillis() - start));
+        return blogFlux;
+    }
+
     @GetMapping("/getBlocking")
     @ResponseStatus(HttpStatus.CREATED)
     public List<Blog> findByTitleBlocking(@RequestParam String blogTitle) {
