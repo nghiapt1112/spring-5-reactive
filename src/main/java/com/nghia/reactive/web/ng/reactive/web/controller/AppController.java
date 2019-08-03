@@ -6,11 +6,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.summingDouble;
+import static java.util.stream.Collectors.teeing;
 
 @RestController
 @RequestMapping("/api/blog")
@@ -22,7 +38,10 @@ public class AppController extends BaseController {
     @GetMapping
     public Flux<Blog> findAll() {
         log.info("findAll Blog");
-        return blogService.findAll();
+        long start = System.currentTimeMillis();
+        Flux<Blog> res = blogService.findAll();
+        log.info("find all  Blogs with : {} second.", (System.currentTimeMillis() - start));
+        return res;
     }
 
     @GetMapping("/find")
@@ -54,13 +73,36 @@ public class AppController extends BaseController {
         blog.setContent("Content");
         blog.setTitle("Title");
         Flux<Blog> blogFlux = blogService.createBunk(blog);
-        log.info("created bunk Blog with : {} second.",(System.currentTimeMillis() - start));
+        log.info("created bunk Blog with : {} second.", (System.currentTimeMillis() - start));
         return blogFlux;
     }
 
     @PostMapping("/old/create-bunk")
     @ResponseStatus(HttpStatus.CREATED)
     public List<Blog> oldcreateBunk() {
+//            int day = 0;
+//        int numLetters = switch (day) {
+//            case 1, 2, 3 -> 6;
+//            case 4 -> 7;
+//            case 5, 6 -> 8;
+//            case 7 -> 9;
+//            default -> throw new IllegalStateException("Huh? " + day);
+//        };
+        Flux<Long> squares = Flux.generate(
+                AtomicLong::new, //1
+                (state, sink) -> {
+                    long i = state.getAndIncrement();
+                    sink.next(i * i); //2
+                    if (i == 10) sink.complete(); //3
+                    return state;
+                });
+        var x = new ArrayList<String>();
+        double average = Stream.of(1, 4, 2, 7, 4, 6, 5)
+                .collect(teeing(
+                        summingDouble(i -> i),
+                        counting(),
+                        (sum, n) -> sum / n));
+
         log.info("==================\n\n");
         long start = System.currentTimeMillis();
         Blog blog = new Blog();
@@ -68,7 +110,7 @@ public class AppController extends BaseController {
         blog.setContent("Content");
         blog.setTitle("Title");
         List<Blog> blogFlux = blogService.createOldBunk(blog);
-        log.info("created bunk Blog with : {} second.",(System.currentTimeMillis() - start));
+        log.info("created bunk Blog with : {} second.", (System.currentTimeMillis() - start));
         return blogFlux;
     }
 

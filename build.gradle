@@ -6,7 +6,8 @@ plugins {
 apply plugin: 'io.spring.dependency-management'
 group = 'com.nghia.reactive.web'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+sourceCompatibility = 12
+targetCompatibility = 12
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -31,8 +32,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
 
-//    compile('io.projectreactor:reactor-bus:2.0.8.RELEASE')
+    compile('io.projectreactor:reactor-bus:2.0.8.RELEASE')
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('io.projectreactor:reactor-test')
+    testCompile('commons-io:commons-io:2.6')
 }
